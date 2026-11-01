@@ -1,0 +1,44 @@
+@model Ticket
+@{
+    ViewData["Titulo"] = $"Ticket #{Model.Id}";
+}
+
+<a asp-action="Index" class="d-inline-block mb-3">Volver a la lista</a>
+
+<section class="bg-white p-4 rounded border mb-3">
+    <h1 class="h4">#@Model.Id · @Model.Titulo</h1>
+    <p class="text-secondary">
+        @ReglasTicket.Nombre(Model.Estatus) · Prioridad @Model.Prioridad · Reportó @Model.ReportadoPor
+    </p>
+    <p style="white-space: pre-wrap">@Model.Descripcion</p>
+
+    <div class="d-flex flex-wrap gap-2">
+        @foreach (var siguiente in ReglasTicket.Siguientes(Model.Estatus))
+        {
+            <form asp-action="CambiarEstatus" method="post">
+                <input type="hidden" name="id" value="@Model.Id">
+                <input type="hidden" name="nuevo" value="@siguiente">
+                <button class="btn btn-outline-dark">Pasar a @ReglasTicket.Nombre(siguiente)</button>
+            </form>
+        }
+    </div>
+</section>
+
+<section class="bg-white p-4 rounded border">
+    <h2 class="h5">Historial</h2>
+    <form asp-action="Comentar" method="post" class="mb-3">
+        <input type="hidden" name="id" value="@Model.Id">
+        <label class="form-label" for="comentario">Comentario</label>
+        <textarea class="form-control mb-2" id="comentario" name="comentario" rows="2" maxlength="500" required></textarea>
+        <button class="btn btn-dark btn-sm">Agregar</button>
+    </form>
+    <ul class="list-group list-group-flush">
+        @foreach (var evento in Model.Eventos)
+        {
+            <li class="list-group-item px-0">
+                <small class="text-secondary d-block">@evento.CreadoEn.ToString("dd/MM/yyyy HH:mm") UTC</small>
+                @evento.Detalle
+            </li>
+        }
+    </ul>
+</section>

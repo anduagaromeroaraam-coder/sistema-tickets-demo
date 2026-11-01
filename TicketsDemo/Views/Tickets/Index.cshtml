@@ -1,0 +1,66 @@
+@model List<Ticket>
+@{
+    ViewData["Titulo"] = "Tickets";
+    var estatus = ViewBag.Estatus as EstatusTicket?;
+    var prioridad = ViewBag.Prioridad as PrioridadTicket?;
+}
+
+<h1 class="h3 mb-3">Tickets</h1>
+
+<form id="filtros" method="get" class="row g-2 mb-3">
+    <div class="col-sm-4">
+        <label class="form-label" for="estatus">Estatus</label>
+        <select class="form-select" id="estatus" name="estatus">
+            <option value="">Todos</option>
+            @foreach (var opcion in Enum.GetValues<EstatusTicket>())
+            {
+                <option value="@opcion" selected="@(opcion == estatus)">@ReglasTicket.Nombre(opcion)</option>
+            }
+        </select>
+    </div>
+    <div class="col-sm-4">
+        <label class="form-label" for="prioridad">Prioridad</label>
+        <select class="form-select" id="prioridad" name="prioridad">
+            <option value="">Todas</option>
+            @foreach (var opcion in Enum.GetValues<PrioridadTicket>())
+            {
+                <option value="@opcion" selected="@(opcion == prioridad)">@opcion</option>
+            }
+        </select>
+    </div>
+</form>
+
+@if (Model.Count == 0)
+{
+    <p class="text-secondary">No hay tickets con estos filtros.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover bg-white align-middle">
+            <thead>
+                <tr><th>#</th><th>Título</th><th>Reportado por</th><th>Prioridad</th><th>Estatus</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var ticket in Model)
+                {
+                    <tr>
+                        <td>@ticket.Id</td>
+                        <td><a asp-action="Detalle" asp-route-id="@ticket.Id">@ticket.Titulo</a></td>
+                        <td>@ticket.ReportadoPor</td>
+                        <td>@ticket.Prioridad</td>
+                        <td>@ReglasTicket.Nombre(ticket.Estatus)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        $('#estatus, #prioridad').on('change', function () {
+            $('#filtros').trigger('submit');
+        });
+    </script>
+}
